@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 from PIL import Image
+from datetime import datetime
+import os
 
 # =========================
 # CONFIG
@@ -23,7 +25,31 @@ with col2:
     st.title("🔎 Buscador por SKU_ENCRIPTADO")
 
 # =========================
-# USUARIOS (LOGIN)
+# LOG FUNCION
+# =========================
+def registrar_log(usuario):
+    ip = "desconocida"
+
+    try:
+        ip = st.context.headers.get("X-Forwarded-For", "desconocida")
+    except:
+        pass
+
+    log = pd.DataFrame([{
+        "usuario": usuario,
+        "ip": ip,
+        "fecha_hora": datetime.now()
+    }])
+
+    archivo = "log_accesos.csv"
+
+    if os.path.exists(archivo):
+        log.to_csv(archivo, mode="a", header=False, index=False)
+    else:
+        log.to_csv(archivo, index=False)
+
+# =========================
+# USUARIOS
 # =========================
 @st.cache_data
 def cargar_usuarios():
@@ -31,7 +57,7 @@ def cargar_usuarios():
         "base_usuarios.csv",
         dtype=str,
         encoding="utf-8",
-        sep=";"   # 🔥 CLAVE
+        sep=";"
     )
 
     df.columns = df.columns.str.strip()
@@ -64,6 +90,9 @@ if not st.session_state.autenticado:
         if not validacion.empty:
             st.session_state.autenticado = True
             st.session_state.usuario = usuario
+
+            registrar_log(usuario)  # 🔥 LOG DE ACCESO
+
             st.rerun()
         else:
             st.error("Usuario o contraseña incorrectos")
@@ -131,3 +160,29 @@ if busqueda:
 # =========================
 st.caption(f"Usuario conectado: {st.session_state.get('usuario', '')}")
 st.caption(f"Total registros cargados: {len(df)}")
+
+# =========================
+# PANEL LOG (SOLO ADMIN)
+# =========================
+st.divider()
+
+st.subheader("📊 Log de Accesos")
+
+if st.session_state.get("usuario") == "14160711-1":
+
+    if os.path.exists("log_accesos.csv"):
+        log_df = pd.read_csv("log_accesos.csv")
+
+        st.dataframe(log_df, use_container_width=True)
+
+        with open("log_accesos.csv", "rb") as f:
+            st.download_button(
+                "📥 Descargar Log",
+                f,
+                file_name="log_accesos.csv"
+            )
+    else:
+        st.info("No hay registros aún")
+
+else:
+    st.warning("Usuario no Autorizado para ver Log")
