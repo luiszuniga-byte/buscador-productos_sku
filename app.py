@@ -18,9 +18,6 @@ if "autenticado" not in st.session_state:
 if "sku_input" not in st.session_state:
     st.session_state.sku_input = ""
 
-if "busqueda" not in st.session_state:
-    st.session_state.busqueda = ""
-
 # =========================
 # LOGO + TITULO
 # =========================
@@ -148,34 +145,31 @@ with colA:
     if st.button("🚪 Salir"):
         st.session_state.autenticado = False
         st.session_state.sku_input = ""
-        st.session_state.busqueda = ""
         st.rerun()
 
 with colB:
     if st.button("🧹 Limpiar"):
         st.session_state.sku_input = ""
-        st.session_state.busqueda = ""
         st.rerun()
 
 # =========================
-# BUSCADOR (FIX REAL)
+# INPUT CONTROLADO (CLAVE DEL FIX)
 # =========================
 st.divider()
 
-st.session_state.sku_input = st.text_input(
+st.text_input(
     "Ingrese SKU_ENCRIPTADO",
-    value=st.session_state.sku_input
+    key="sku_input"
 )
 
-# sincronización real
-st.session_state.busqueda = st.session_state.sku_input
+busqueda = st.session_state.sku_input
 
 # =========================
 # RESULTADOS
 # =========================
-if st.session_state.busqueda:
+if busqueda:
 
-    resultado = df[df["SKU_ENCRIPTADO"].str.upper() == st.session_state.busqueda.upper()]
+    resultado = df[df["SKU_ENCRIPTADO"].str.upper() == busqueda.upper()]
     resultado = resultado.drop_duplicates(subset=["SKU_ENCRIPTADO"])
 
     st.write(f"Resultados encontrados: {len(resultado)}")
@@ -199,7 +193,7 @@ st.caption(f"Usuario conectado: {st.session_state.get('usuario', '')}")
 st.caption(f"Total registros cargados: {len(df)}")
 
 # =========================
-# LOG SOLO ADMIN (OCULTO)
+# LOG SOLO ADMIN
 # =========================
 if st.session_state.get("usuario") == "14160711-1":
 
