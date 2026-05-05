@@ -65,19 +65,32 @@ st.markdown(
 )
 
 # =========================
-# LOGO + TITULO
+# LOGO
 # =========================
-col1, col2 = st.columns([1, 5])
+try:
+    logo = Image.open("logo.png")
+    st.image(logo, width=110)
+except:
+    pass
 
-with col1:
-    try:
-        logo = Image.open("logo.png")
-        st.image(logo, width=120)
-    except:
-        pass
-
-with col2:
-    st.title("🔎 Buscador por SKU_ENCRIPTADO")
+# =========================
+# TITULO CENTRADO
+# =========================
+st.markdown(
+    """
+    <h1 style="
+        text-align: center;
+        font-size: 34px;
+        margin-top: 10px;
+        margin-bottom: 25px;
+        font-weight: 700;
+        letter-spacing: 1px;
+    ">
+    🔎 Buscador por SKU_ENCRIPTADO
+    </h1>
+    """,
+    unsafe_allow_html=True
+)
 
 # =========================
 # LOG
