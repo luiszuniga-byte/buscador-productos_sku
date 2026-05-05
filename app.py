@@ -10,6 +10,15 @@ import os
 st.set_page_config(page_title="Buscador de Productos", layout="wide")
 
 # =========================
+# SESSION DEFAULTS
+# =========================
+if "autenticado" not in st.session_state:
+    st.session_state.autenticado = False
+
+if "busqueda" not in st.session_state:
+    st.session_state.busqueda = ""
+
+# =========================
 # LOGO + TITULO
 # =========================
 col1, col2 = st.columns([1, 5])
@@ -25,7 +34,7 @@ with col2:
     st.title("🔎 Buscador por SKU_ENCRIPTADO")
 
 # =========================
-# LOG DE ACCESOS
+# LOG
 # =========================
 def registrar_log(usuario):
     ip = "desconocida"
@@ -60,25 +69,17 @@ def cargar_usuarios():
         sep=";"
     )
 
-    # 🔥 LIMPIEZA CRÍTICA
     df.columns = df.columns.str.strip()
+    df["Usuario"] = df["Usuario"].str.strip()
+    df["Password"] = df["Password"].str.strip()
 
-    df["Usuario"] = df["Usuario"].astype(str).str.strip()
-    df["Password"] = df["Password"].astype(str).str.strip()
-
-    # eliminar duplicados
-    df = df.drop_duplicates(subset=["Usuario"])
-
-    return df
+    return df.drop_duplicates(subset=["Usuario"])
 
 usuarios_df = cargar_usuarios()
 
 # =========================
 # LOGIN
 # =========================
-if "autenticado" not in st.session_state:
-    st.session_state.autenticado = False
-
 if not st.session_state.autenticado:
 
     st.subheader("🔐 Acceso al sistema")
@@ -100,7 +101,7 @@ if not st.session_state.autenticado:
             st.session_state.autenticado = True
             st.session_state.usuario = usuario
 
-            registrar_log(usuario)  # 🔥 LOG
+            registrar_log(usuario)
 
             st.rerun()
         else:
@@ -109,7 +110,7 @@ if not st.session_state.autenticado:
     st.stop()
 
 # =========================
-# DATA PRODUCTOS
+# DATA
 # =========================
 RUTA_ARCHIVO = "https://raw.githubusercontent.com/luiszuniga-byte/buscador-productos_sku/main/Template_Stock.csv"
 
@@ -129,22 +130,34 @@ def cargar_datos():
 df = cargar_datos()
 
 # =========================
-# VALIDACIÓN
+# SALIR + LIMPIAR
 # =========================
-if "SKU_ENCRIPTADO" not in df.columns:
-    st.error("❌ No existe la columna SKU_ENCRIPTADO")
-    st.stop()
+colA, colB, colC = st.columns([1, 1, 6])
+
+with colA:
+    if st.button("🚪 Salir"):
+        st.session_state.autenticado = False
+        st.session_state.busqueda = ""
+        st.rerun()
+
+with colB:
+    if st.button("🧹 Limpiar"):
+        st.session_state.busqueda = ""
+        st.rerun()
 
 # =========================
 # BUSCADOR
 # =========================
 st.divider()
 
-busqueda = st.text_input("Ingrese SKU_ENCRIPTADO")
+st.session_state.busqueda = st.text_input(
+    "Ingrese SKU_ENCRIPTADO",
+    value=st.session_state.busqueda
+)
 
-if busqueda:
+if st.session_state.busqueda:
 
-    resultado = df[df["SKU_ENCRIPTADO"].str.upper() == busqueda.upper()]
+    resultado = df[df["SKU_ENCRIPTADO"].str.upper() == st.session_state.busqueda.upper()]
     resultado = resultado.drop_duplicates(subset=["SKU_ENCRIPTADO"])
 
     st.write(f"Resultados encontrados: {len(resultado)}")
@@ -157,27 +170,22 @@ if busqueda:
 
             for _, row in resultado.iterrows():
                 if pd.notna(row["URL Imagen"]):
-                    try:
-                        st.image(row["URL Imagen"], width=120)
-                    except:
-                        pass
+                    st.image(row["URL Imagen"], width=120)
     else:
         st.warning("No se encontraron resultados")
 
 # =========================
-# INFO GENERAL
+# INFO
 # =========================
 st.caption(f"Usuario conectado: {st.session_state.get('usuario', '')}")
-st.caption(f"Total registros cargados: {len(df)}")
 
 # =========================
-# PANEL ADMIN LOG
+# LOG SOLO ADMIN (OCULTO PARA OTROS)
 # =========================
-st.divider()
-
-st.subheader("📊 Log de Accesos")
-
 if st.session_state.get("usuario") == "14160711-1":
+
+    st.divider()
+    st.subheader("📊 Log de Accesos")
 
     if os.path.exists("log_accesos.csv"):
         log_df = pd.read_csv("log_accesos.csv")
@@ -192,6 +200,3 @@ if st.session_state.get("usuario") == "14160711-1":
             )
     else:
         st.info("No hay registros aún")
-
-else:
-    st.warning("Usuario no Autorizado para ver Log")
