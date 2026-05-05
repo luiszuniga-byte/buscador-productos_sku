@@ -3,6 +3,7 @@ import pandas as pd
 from PIL import Image
 from datetime import datetime
 import os
+import re
 
 # =========================
 # CONFIG
@@ -19,47 +20,33 @@ if "sku_input" not in st.session_state:
     st.session_state.sku_input = ""
 
 # =========================
-# FOOTER (RELIEVE LZ)
+# FOOTER
 # =========================
 st.markdown(
     """
     <style>
-
-    .block-container {
-        padding-bottom: 85px;
-    }
+    .block-container { padding-bottom: 85px; }
 
     .footer-lz {
         position: fixed;
         bottom: 10px;
         left: 10px;
-
         background: linear-gradient(145deg, #1b1b1b, #111111);
         color: #b5b5b5;
-
         padding: 7px 14px;
         border-radius: 8px;
         font-size: 12px;
-
         z-index: 9999999;
-
-        box-shadow:
-            3px 3px 6px rgba(0,0,0,0.65),
-            -2px -2px 5px rgba(255,255,255,0.05);
-
+        box-shadow: 3px 3px 6px rgba(0,0,0,0.65),
+                    -2px -2px 5px rgba(255,255,255,0.05);
         border: 1px solid rgba(255,255,255,0.06);
-
         letter-spacing: 0.3px;
         font-weight: 500;
-
         pointer-events: none;
     }
-
     </style>
 
-    <div class="footer-lz">
-        ✦ Hecho por LZ ✦
-    </div>
+    <div class="footer-lz">✦ Hecho por LZ ✦</div>
     """,
     unsafe_allow_html=True
 )
@@ -74,18 +61,11 @@ except:
     pass
 
 # =========================
-# TITULO CENTRADO
+# TITULO
 # =========================
 st.markdown(
     """
-    <h1 style="
-        text-align: center;
-        font-size: 34px;
-        margin-top: 10px;
-        margin-bottom: 25px;
-        font-weight: 700;
-        letter-spacing: 1px;
-    ">
+    <h1 style="text-align:center;font-size:34px;margin-top:10px;margin-bottom:25px;">
     🔎 Buscador por SKU_ENCRIPTADO
     </h1>
     """,
@@ -93,11 +73,20 @@ st.markdown(
 )
 
 # =========================
+# UTIL: NORMALIZAR RUT
+# =========================
+def normalizar_rut(texto):
+    if pd.isna(texto):
+        return ""
+    texto = str(texto).strip().upper()
+    texto = re.sub(r"\s+", "", texto)  # elimina espacios invisibles
+    return texto
+
+# =========================
 # LOG
 # =========================
 def registrar_log(usuario):
     ip = "desconocida"
-
     try:
         ip = st.context.headers.get("X-Forwarded-For", "desconocida")
     except:
@@ -129,8 +118,10 @@ def cargar_usuarios():
     )
 
     df.columns = df.columns.str.strip()
-    df["Usuario"] = df["Usuario"].str.strip()
-    df["Password"] = df["Password"].str.strip()
+
+    # 🔥 NORMALIZACIÓN TOTAL
+    df["Usuario"] = df["Usuario"].apply(normalizar_rut)
+    df["Password"] = df["Password"].astype(str).str.strip()
 
     return df.drop_duplicates(subset=["Usuario"])
 
@@ -143,12 +134,12 @@ if not st.session_state.autenticado:
 
     st.subheader("🔐 Acceso al sistema")
 
-    usuario = st.text_input("Ingresa Usuario (RUT) sin puntos y con guión")
+    usuario = st.text_input("Usuario (RUT)")
     password = st.text_input("Contraseña", type="password")
 
     if st.button("Ingresar"):
 
-        usuario = usuario.strip()
+        usuario = normalizar_rut(usuario)
         password = password.strip()
 
         validacion = usuarios_df[
@@ -169,14 +160,14 @@ if not st.session_state.autenticado:
     st.stop()
 
 # =========================
-# DATA PRODUCTOS (PARQUET LOCAL)
+# DATA PRODUCTOS (PARQUET)
 # =========================
 ARCHIVO_PARQUET = "data.parquet"
 
 @st.cache_data
 def cargar_datos():
     if not os.path.exists(ARCHIVO_PARQUET):
-        st.error("❌ No se encontró el archivo data.parquet")
+        st.error("❌ No se encontró data.parquet")
         st.stop()
 
     df = pd.read_parquet(ARCHIVO_PARQUET)
@@ -189,7 +180,7 @@ df = cargar_datos()
 # VALIDACIÓN
 # =========================
 if "SKU_ENCRIPTADO" not in df.columns:
-    st.error("❌ No existe la columna SKU_ENCRIPTADO")
+    st.error("❌ No existe SKU_ENCRIPTADO")
     st.stop()
 
 # =========================
@@ -213,10 +204,7 @@ with colB:
 # =========================
 st.divider()
 
-st.text_input(
-    "Ingrese SKU_ENCRIPTADO",
-    key="sku_input"
-)
+st.text_input("Ingrese SKU_ENCRIPTADO", key="sku_input")
 
 busqueda = st.session_state.sku_input
 
@@ -225,7 +213,11 @@ busqueda = st.session_state.sku_input
 # =========================
 if busqueda:
 
-    resultado = df[df["SKU_ENCRIPTADO"].str.upper() == busqueda.upper()]
+    resultado = df[
+        df["SKU_ENCRIPTADO"].astype(str).str.upper().str.strip()
+        == str(busqueda).upper().strip()
+    ]
+
     resultado = resultado.drop_duplicates(subset=["SKU_ENCRIPTADO"])
 
     st.write(f"Resultados encontrados: {len(resultado)}")
@@ -245,11 +237,11 @@ if busqueda:
 # =========================
 # INFO
 # =========================
-st.caption(f"Usuario conectado: {st.session_state.get('usuario', '')}")
+st.caption(f"Usuario conectado: {st.session_state.get('usuario','')}")
 st.caption(f"Total registros cargados: {len(df)}")
 
 # =========================
-# LOG SOLO ADMIN
+# LOG ADMIN
 # =========================
 if st.session_state.get("usuario") == "14160711-1":
 
