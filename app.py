@@ -11,34 +11,36 @@ import re
 st.set_page_config(page_title="Buscador de Productos", layout="wide")
 
 # =========================
-# ESTILOS (FONDO + UI)
+# ESTILOS (FONDO BIEN HECHO)
 # =========================
 st.markdown(
     """
     <style>
 
     /* =========================
-       FONDO DEGRADADO GLOBAL
+       FONDO REAL DE LA WEB
     ========================= */
-    .stApp {
+    html, body, .stApp {
+        height: 100%;
         background: linear-gradient(
-            135deg,
-            #ff9a3c 0%,
-            #ffb347 40%,
+            120deg,
+            #ff8c42 0%,
+            #ffb347 45%,
             #ffe29a 100%
         );
+        background-attachment: fixed;
     }
 
     /* =========================
-       CONTENEDOR PRINCIPAL
+       CONTENIDO TRANSPARENTE
     ========================= */
     .block-container {
         padding-bottom: 85px;
-        background-color: rgba(255, 255, 255, 0.88);
-        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.75);
+        border-radius: 16px;
         margin-top: 15px;
         margin-bottom: 15px;
-        box-shadow: 0px 6px 18px rgba(0,0,0,0.15);
+        box-shadow: 0px 8px 22px rgba(0,0,0,0.18);
     }
 
     /* =========================
@@ -100,7 +102,7 @@ st.markdown(
 )
 
 # =========================
-# UTIL NORMALIZAR RUT
+# UTIL RUT
 # =========================
 def normalizar_rut(texto):
     if pd.isna(texto):
@@ -145,7 +147,6 @@ def cargar_usuarios():
     )
 
     df.columns = df.columns.str.strip()
-
     df["Usuario"] = df["Usuario"].apply(normalizar_rut)
     df["Password"] = df["Password"].astype(str).str.strip()
 
@@ -176,9 +177,7 @@ if not st.session_state.autenticado:
         if not validacion.empty:
             st.session_state.autenticado = True
             st.session_state.usuario = usuario
-
             registrar_log(usuario)
-
             st.rerun()
         else:
             st.error("Usuario o contraseña incorrectos")
@@ -186,7 +185,7 @@ if not st.session_state.autenticado:
     st.stop()
 
 # =========================
-# DATA PRODUCTOS
+# DATA
 # =========================
 ARCHIVO_PARQUET = "data.parquet"
 
