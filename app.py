@@ -79,7 +79,8 @@ def normalizar_rut(texto):
     if pd.isna(texto):
         return ""
     texto = str(texto).strip().upper()
-    texto = re.sub(r"\s+", "", texto)  # elimina espacios invisibles
+    texto = re.sub(r"\.", "", texto)   # elimina puntos
+    texto = re.sub(r"\s+", "", texto)  # elimina espacios
     return texto
 
 # =========================
@@ -106,20 +107,22 @@ def registrar_log(usuario):
         log.to_csv(archivo, index=False)
 
 # =========================
-# USUARIOS
+# USUARIOS (SIN CACHE 🔥)
 # =========================
-@st.cache_data
 def cargar_usuarios():
+    if not os.path.exists("base_usuarios.csv"):
+        st.error("❌ No se encontró base_usuarios.csv")
+        st.stop()
+
     df = pd.read_csv(
         "base_usuarios.csv",
         dtype=str,
-        encoding="utf-8",
+        encoding="utf-8-sig",  # 👈 corrige problemas Excel
         sep=";"
     )
 
     df.columns = df.columns.str.strip()
 
-    # 🔥 NORMALIZACIÓN TOTAL
     df["Usuario"] = df["Usuario"].apply(normalizar_rut)
     df["Password"] = df["Password"].astype(str).str.strip()
 
@@ -142,6 +145,11 @@ if not st.session_state.autenticado:
         usuario = normalizar_rut(usuario)
         password = password.strip()
 
+        # DEBUG (activar si falla)
+        # st.write("Usuario ingresado:", usuario)
+        # st.write("Password ingresado:", password)
+        # st.write("Usuarios cargados:", usuarios_df)
+
         validacion = usuarios_df[
             (usuarios_df["Usuario"] == usuario) &
             (usuarios_df["Password"] == password)
@@ -160,7 +168,7 @@ if not st.session_state.autenticado:
     st.stop()
 
 # =========================
-# DATA PRODUCTOS (PARQUET)
+# DATA PRODUCTOS
 # =========================
 ARCHIVO_PARQUET = "data.parquet"
 
@@ -250,7 +258,6 @@ if st.session_state.get("usuario") == "14160711-1":
 
     if os.path.exists("log_accesos.csv"):
         log_df = pd.read_csv("log_accesos.csv")
-
         st.dataframe(log_df, use_container_width=True)
 
         with open("log_accesos.csv", "rb") as f:
