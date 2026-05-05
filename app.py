@@ -169,20 +169,17 @@ if not st.session_state.autenticado:
     st.stop()
 
 # =========================
-# DATA PRODUCTOS
+# DATA PRODUCTOS (PARQUET LOCAL)
 # =========================
-RUTA_ARCHIVO = "https://raw.githubusercontent.com/luiszuniga-byte/buscador-productos_sku/main/Template_Stock.csv"
+ARCHIVO_PARQUET = "data.parquet"
 
 @st.cache_data
 def cargar_datos():
-    df = pd.read_csv(
-        RUTA_ARCHIVO,
-        dtype=str,
-        encoding="latin1",
-        sep=";",
-        engine="python"
-    )
+    if not os.path.exists(ARCHIVO_PARQUET):
+        st.error("❌ No se encontró el archivo data.parquet")
+        st.stop()
 
+    df = pd.read_parquet(ARCHIVO_PARQUET)
     df.columns = df.columns.str.strip()
     return df
 
