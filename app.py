@@ -221,7 +221,7 @@ if busqueda:
     st.write(f"Resultados encontrados: {len(resultado)}")
 
     if not resultado.empty:
-        st.dataframe(resultado, use_container_width=True)
+        st.dataframe(resultado, use_container_width=True, hide_index=True)
 
         if "URL Imagen" in resultado.columns:
             st.subheader("Imágenes")
