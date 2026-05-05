@@ -19,7 +19,7 @@ if "sku_input" not in st.session_state:
     st.session_state.sku_input = ""
 
 # =========================
-# FOOTER CSS (GLOBAL)
+# FOOTER (HECHO POR LZ) - IZQUIERDA ABAJO
 # =========================
 st.markdown(
     """
@@ -32,27 +32,24 @@ st.markdown(
     .footer-lz {
         position: fixed;
         bottom: 10px;
-        right: 10px;
-        background: rgba(25, 25, 25, 0.9);
+        left: 10px;
+        background: rgba(20, 20, 20, 0.90);
         color: white;
-        padding: 6px 10px;
+        padding: 7px 12px;
         border-radius: 6px;
         font-size: 12px;
         z-index: 9999999;
         box-shadow: 0 2px 8px rgba(0,0,0,0.25);
         pointer-events: none;
+        border: 1px solid rgba(255,255,255,0.15);
     }
 
     </style>
-    """,
-    unsafe_allow_html=True
-)
 
-# =========================
-# FOOTER (VISIBLE SIEMPRE)
-# =========================
-st.markdown(
-    "<div class='footer-lz'>Hecho por LZ.</div>",
+    <div class="footer-lz">
+        Hecho por LZ.
+    </div>
+    """,
     unsafe_allow_html=True
 )
 
