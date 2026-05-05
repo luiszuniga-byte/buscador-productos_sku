@@ -19,6 +19,44 @@ if "sku_input" not in st.session_state:
     st.session_state.sku_input = ""
 
 # =========================
+# FOOTER CSS (GLOBAL)
+# =========================
+st.markdown(
+    """
+    <style>
+
+    .block-container {
+        padding-bottom: 80px;
+    }
+
+    .footer-lz {
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        background: rgba(25, 25, 25, 0.9);
+        color: white;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        z-index: 9999999;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+        pointer-events: none;
+    }
+
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# =========================
+# FOOTER (VISIBLE SIEMPRE)
+# =========================
+st.markdown(
+    "<div class='footer-lz'>Hecho por LZ.</div>",
+    unsafe_allow_html=True
+)
+
+# =========================
 # LOGO + TITULO
 # =========================
 col1, col2 = st.columns([1, 5])
@@ -137,7 +175,7 @@ if "SKU_ENCRIPTADO" not in df.columns:
     st.stop()
 
 # =========================
-# BOTONES SUPERIORES
+# BOTONES
 # =========================
 colA, colB, colC = st.columns([1, 1, 6])
 
@@ -213,37 +251,3 @@ if st.session_state.get("usuario") == "14160711-1":
             )
     else:
         st.info("No hay registros aún")
-
-# =========================
-# FOOTER (HECHO POR LZ) - FIX DEFINITIVO
-# =========================
-st.markdown(
-    """
-    <style>
-
-    .main {
-        padding-bottom: 70px;
-    }
-
-    .footer-lz {
-        position: fixed;
-        bottom: 12px;
-        right: 12px;
-        background-color: rgba(20, 20, 20, 0.85);
-        color: white;
-        padding: 6px 12px;
-        border-radius: 8px;
-        font-size: 12px;
-        z-index: 999999;
-        pointer-events: none;
-        border: 1px solid rgba(255,255,255,0.15);
-    }
-
-    </style>
-
-    <div class="footer-lz">
-        Hecho por LZ.
-    </div>
-    """,
-    unsafe_allow_html=True
-)
