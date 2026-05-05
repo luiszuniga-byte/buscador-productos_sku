@@ -19,35 +19,46 @@ if "sku_input" not in st.session_state:
     st.session_state.sku_input = ""
 
 # =========================
-# FOOTER (HECHO POR LZ) - IZQUIERDA ABAJO
+# FOOTER (RELIEVE LZ)
 # =========================
 st.markdown(
     """
     <style>
 
     .block-container {
-        padding-bottom: 80px;
+        padding-bottom: 85px;
     }
 
     .footer-lz {
         position: fixed;
         bottom: 10px;
         left: 10px;
-        background: rgba(20, 20, 20, 0.90);
-        color: white;
-        padding: 7px 12px;
-        border-radius: 6px;
+
+        background: linear-gradient(145deg, #1b1b1b, #111111);
+        color: #b5b5b5;
+
+        padding: 7px 14px;
+        border-radius: 8px;
         font-size: 12px;
+
         z-index: 9999999;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+
+        box-shadow:
+            3px 3px 6px rgba(0,0,0,0.65),
+            -2px -2px 5px rgba(255,255,255,0.05);
+
+        border: 1px solid rgba(255,255,255,0.06);
+
+        letter-spacing: 0.3px;
+        font-weight: 500;
+
         pointer-events: none;
-        border: 1px solid rgba(255,255,255,0.15);
     }
 
     </style>
 
     <div class="footer-lz">
-        Hecho por LZ.
+        ✦ Hecho por LZ ✦
     </div>
     """,
     unsafe_allow_html=True
