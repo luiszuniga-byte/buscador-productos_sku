@@ -84,7 +84,7 @@ if not st.session_state.autenticado:
 
     st.subheader("🔐 Acceso al sistema")
 
-    usuario = st.text_input("Usuario (RUT)")
+    usuario = st.text_input("Ingresa Usuario (RUT) sin puntos y con -")
     password = st.text_input("Contraseña", type="password")
 
     if st.button("Ingresar"):
