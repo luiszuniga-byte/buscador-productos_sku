@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import re
 from PIL import Image
 
 # =========================
@@ -9,7 +8,7 @@ from PIL import Image
 st.set_page_config(page_title="Buscador de Productos", layout="wide")
 
 # =========================
-# LOGO
+# LOGO + TITULO
 # =========================
 col1, col2 = st.columns([1, 5])
 
@@ -24,22 +23,19 @@ with col2:
     st.title("🔎 Buscador por SKU_ENCRIPTADO")
 
 # =========================
-# VALIDAR RUT (BÁSICO)
-# =========================
-def validar_rut(rut):
-    rut = rut.replace(".", "").replace("-", "")
-    if len(rut) < 8:
-        return False
-    if not re.match(r"^[0-9]+[0-9kK]$", rut):
-        return False
-    return True
-
-# =========================
-# USUARIOS
+# USUARIOS (LOGIN)
 # =========================
 @st.cache_data
 def cargar_usuarios():
-    return pd.read_csv("base_usuarios.csv", dtype=str)
+    df = pd.read_csv(
+        "base_usuarios.csv",
+        dtype=str,
+        encoding="utf-8",
+        sep=";"   # 🔥 CLAVE
+    )
+
+    df.columns = df.columns.str.strip()
+    return df
 
 usuarios_df = cargar_usuarios()
 
@@ -53,17 +49,13 @@ if not st.session_state.autenticado:
 
     st.subheader("🔐 Acceso al sistema")
 
-    usuario = st.text_input("RUT (sin puntos ni guión)")
+    usuario = st.text_input("Usuario (RUT)")
     password = st.text_input("Contraseña", type="password")
 
     if st.button("Ingresar"):
 
-        # validar formato RUT
-        if not validar_rut(usuario):
-            st.error("RUT inválido")
-            st.stop()
+        usuario = usuario.strip()
 
-        # validar credenciales
         validacion = usuarios_df[
             (usuarios_df["Usuario"] == usuario) &
             (usuarios_df["Password"] == password)
@@ -79,13 +71,10 @@ if not st.session_state.autenticado:
     st.stop()
 
 # =========================
-# RUTA ARCHIVO
+# DATA PRODUCTOS
 # =========================
 RUTA_ARCHIVO = "https://raw.githubusercontent.com/luiszuniga-byte/buscador-productos_sku/main/Template_Stock.csv"
 
-# =========================
-# CARGA DE DATOS
-# =========================
 @st.cache_data
 def cargar_datos():
     df = pd.read_csv(
@@ -105,7 +94,7 @@ df = cargar_datos()
 # VALIDACIÓN
 # =========================
 if "SKU_ENCRIPTADO" not in df.columns:
-    st.error("❌ No existe la columna SKU_ENCRIPTADO en el archivo")
+    st.error("❌ No existe la columna SKU_ENCRIPTADO")
     st.stop()
 
 # =========================
@@ -116,6 +105,7 @@ st.divider()
 busqueda = st.text_input("Ingrese SKU_ENCRIPTADO")
 
 if busqueda:
+
     resultado = df[df["SKU_ENCRIPTADO"].str.upper() == busqueda.upper()]
     resultado = resultado.drop_duplicates(subset=["SKU_ENCRIPTADO"])
 
@@ -126,6 +116,7 @@ if busqueda:
 
         if "URL Imagen" in resultado.columns:
             st.subheader("Imágenes")
+
             for _, row in resultado.iterrows():
                 if pd.notna(row["URL Imagen"]):
                     try:
