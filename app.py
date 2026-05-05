@@ -25,7 +25,7 @@ with col2:
     st.title("🔎 Buscador por SKU_ENCRIPTADO")
 
 # =========================
-# LOG FUNCION
+# LOG DE ACCESOS
 # =========================
 def registrar_log(usuario):
     ip = "desconocida"
@@ -60,7 +60,15 @@ def cargar_usuarios():
         sep=";"
     )
 
+    # 🔥 LIMPIEZA CRÍTICA
     df.columns = df.columns.str.strip()
+
+    df["Usuario"] = df["Usuario"].astype(str).str.strip()
+    df["Password"] = df["Password"].astype(str).str.strip()
+
+    # eliminar duplicados
+    df = df.drop_duplicates(subset=["Usuario"])
+
     return df
 
 usuarios_df = cargar_usuarios()
@@ -81,6 +89,7 @@ if not st.session_state.autenticado:
     if st.button("Ingresar"):
 
         usuario = usuario.strip()
+        password = password.strip()
 
         validacion = usuarios_df[
             (usuarios_df["Usuario"] == usuario) &
@@ -91,7 +100,7 @@ if not st.session_state.autenticado:
             st.session_state.autenticado = True
             st.session_state.usuario = usuario
 
-            registrar_log(usuario)  # 🔥 LOG DE ACCESO
+            registrar_log(usuario)  # 🔥 LOG
 
             st.rerun()
         else:
@@ -162,7 +171,7 @@ st.caption(f"Usuario conectado: {st.session_state.get('usuario', '')}")
 st.caption(f"Total registros cargados: {len(df)}")
 
 # =========================
-# PANEL LOG (SOLO ADMIN)
+# PANEL ADMIN LOG
 # =========================
 st.divider()
 
