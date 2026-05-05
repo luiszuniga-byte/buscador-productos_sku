@@ -1,26 +1,11 @@
 import streamlit as st
 import pandas as pd
-from PIL import Image
 
 # =========================
 # CONFIG
 # =========================
 st.set_page_config(page_title="Buscador de Productos", layout="wide")
-
-# =========================
-# LOGO + TITULO
-# =========================
-col1, col2 = st.columns([1, 5])
-
-with col1:
-    try:
-        logo = Image.open("logo.png")
-        st.image(logo, width=120)
-    except:
-        st.warning("⚠️ Logo no encontrado")
-
-with col2:
-    st.title("🔎 Buscador por SKU_ENCRIPTADO")
+st.title("🔎 Buscador por SKU_ENCRIPTADO")
 
 # =========================
 # RUTA ARCHIVO
@@ -60,7 +45,10 @@ if "SKU_ENCRIPTADO" not in df.columns:
 busqueda = st.text_input("Ingrese SKU_ENCRIPTADO")
 
 if busqueda:
-    resultado = df[df["SKU_ENCRIPTADO"].str.contains(busqueda, case=False, na=False)]
+
+    # 🔥 BÚSQUEDA EXACTA + SIN DUPLICADOS
+    resultado = df[df["SKU_ENCRIPTADO"].str.upper() == busqueda.upper()]
+    resultado = resultado.drop_duplicates(subset=["SKU_ENCRIPTADO"])
 
     st.write(f"Resultados encontrados: {len(resultado)}")
 
