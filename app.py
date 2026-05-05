@@ -8,9 +8,9 @@ st.set_page_config(page_title="Buscador de Productos", layout="wide")
 st.title("🔎 Buscador por SKU_ENCRIPTADO")
 
 # =========================
-# RUTA ARCHIVO
+# RUTA ARCHIVO (GITHUB RAW)
 # =========================
-RUTA_ARCHIVO = r"C:\Users\luisz\TRABAJO\SOLICITUDES\18.PROYECTO_PARTSFLOW\CREAMOS_BUSCADOR\buscador-productos\Template_Stock.csv"
+RUTA_ARCHIVO = "https://raw.githubusercontent.com/luiszuniga-byte/buscador-productos_sku/main/Template_Stock.csv"
 
 # =========================
 # CARGA DE DATOS
@@ -20,12 +20,12 @@ def cargar_datos():
     df = pd.read_csv(
         RUTA_ARCHIVO,
         dtype=str,
-        encoding="latin1",   # importante si el archivo viene de Excel/Windows
-        sep=";",             # ajusta si tu CSV usa coma ","
+        encoding="latin1",
+        sep=";",  # si tu CSV usa coma cambia a ","
         engine="python"
     )
 
-    # limpieza de nombres de columnas
+    # limpieza de columnas
     df.columns = df.columns.str.strip()
 
     return df
