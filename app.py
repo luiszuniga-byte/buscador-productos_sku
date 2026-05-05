@@ -153,7 +153,7 @@ with colB:
         st.rerun()
 
 # =========================
-# INPUT CONTROLADO (CLAVE DEL FIX)
+# BUSCADOR
 # =========================
 st.divider()
 
@@ -213,3 +213,30 @@ if st.session_state.get("usuario") == "14160711-1":
             )
     else:
         st.info("No hay registros aún")
+
+# =========================
+# FOOTER (HECHO POR LZ)
+# =========================
+st.markdown(
+    """
+    <style>
+    .footer-lz {
+        position: fixed;
+        bottom: 10px;
+        right: 15px;
+        background-color: rgba(0,0,0,0.75);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        z-index: 9999;
+        box-shadow: 0px 2px 6px rgba(0,0,0,0.3);
+    }
+    </style>
+
+    <div class="footer-lz">
+        Hecho por LZ.
+    </div>
+    """,
+    unsafe_allow_html=True
+)
