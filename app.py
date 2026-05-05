@@ -1,14 +1,29 @@
 import streamlit as st
 import pandas as pd
+from PIL import Image
 
 # =========================
 # CONFIG
 # =========================
 st.set_page_config(page_title="Buscador de Productos", layout="wide")
-st.title("🔎 Buscador por SKU_ENCRIPTADO")
 
 # =========================
-# RUTA ARCHIVO (GITHUB RAW)
+# LOGO + TITULO
+# =========================
+col1, col2 = st.columns([1, 5])
+
+with col1:
+    try:
+        logo = Image.open("logo.png")
+        st.image(logo, width=120)
+    except:
+        st.warning("⚠️ Logo no encontrado")
+
+with col2:
+    st.title("🔎 Buscador por SKU_ENCRIPTADO")
+
+# =========================
+# RUTA ARCHIVO
 # =========================
 RUTA_ARCHIVO = "https://raw.githubusercontent.com/luiszuniga-byte/buscador-productos_sku/main/Template_Stock.csv"
 
@@ -21,11 +36,11 @@ def cargar_datos():
         RUTA_ARCHIVO,
         dtype=str,
         encoding="latin1",
-        sep=";",  # si tu CSV usa coma cambia a ","
+        sep=";",
         engine="python"
     )
 
-    # limpieza de columnas
+    # limpieza de nombres de columnas
     df.columns = df.columns.str.strip()
 
     return df
