@@ -11,41 +11,22 @@ import re
 st.set_page_config(page_title="Buscador de Productos", layout="wide")
 
 # =========================
-# ESTILOS (FONDO BIEN HECHO)
+# SESSION INIT
+# =========================
+if "autenticado" not in st.session_state:
+    st.session_state.autenticado = False
+
+if "sku_input" not in st.session_state:
+    st.session_state.sku_input = ""
+
+# =========================
+# FOOTER
 # =========================
 st.markdown(
     """
     <style>
+    .block-container { padding-bottom: 85px; }
 
-    /* =========================
-       FONDO REAL DE LA WEB
-    ========================= */
-    html, body, .stApp {
-        height: 100%;
-        background: linear-gradient(
-            120deg,
-            #ff8c42 0%,
-            #ffb347 45%,
-            #ffe29a 100%
-        );
-        background-attachment: fixed;
-    }
-
-    /* =========================
-       CONTENIDO TRANSPARENTE
-    ========================= */
-    .block-container {
-        padding-bottom: 85px;
-        background: rgba(255, 255, 255, 0.75);
-        border-radius: 16px;
-        margin-top: 15px;
-        margin-bottom: 15px;
-        box-shadow: 0px 8px 22px rgba(0,0,0,0.18);
-    }
-
-    /* =========================
-       FOOTER
-    ========================= */
     .footer-lz {
         position: fixed;
         bottom: 10px;
@@ -63,22 +44,12 @@ st.markdown(
         font-weight: 500;
         pointer-events: none;
     }
-
     </style>
 
     <div class="footer-lz">✦ Hecho por LZ ✦</div>
     """,
     unsafe_allow_html=True
 )
-
-# =========================
-# SESSION INIT
-# =========================
-if "autenticado" not in st.session_state:
-    st.session_state.autenticado = False
-
-if "sku_input" not in st.session_state:
-    st.session_state.sku_input = ""
 
 # =========================
 # LOGO
@@ -102,13 +73,13 @@ st.markdown(
 )
 
 # =========================
-# UTIL RUT
+# UTIL: NORMALIZAR RUT
 # =========================
 def normalizar_rut(texto):
     if pd.isna(texto):
         return ""
     texto = str(texto).strip().upper()
-    texto = re.sub(r"\s+", "", texto)
+    texto = re.sub(r"\s+", "", texto)  # elimina espacios invisibles
     return texto
 
 # =========================
@@ -147,6 +118,8 @@ def cargar_usuarios():
     )
 
     df.columns = df.columns.str.strip()
+
+    # 🔥 NORMALIZACIÓN TOTAL
     df["Usuario"] = df["Usuario"].apply(normalizar_rut)
     df["Password"] = df["Password"].astype(str).str.strip()
 
@@ -177,7 +150,9 @@ if not st.session_state.autenticado:
         if not validacion.empty:
             st.session_state.autenticado = True
             st.session_state.usuario = usuario
+
             registrar_log(usuario)
+
             st.rerun()
         else:
             st.error("Usuario o contraseña incorrectos")
@@ -185,7 +160,7 @@ if not st.session_state.autenticado:
     st.stop()
 
 # =========================
-# DATA
+# DATA PRODUCTOS (PARQUET)
 # =========================
 ARCHIVO_PARQUET = "data.parquet"
 
