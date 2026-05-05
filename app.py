@@ -11,22 +11,39 @@ import re
 st.set_page_config(page_title="Buscador de Productos", layout="wide")
 
 # =========================
-# SESSION INIT
-# =========================
-if "autenticado" not in st.session_state:
-    st.session_state.autenticado = False
-
-if "sku_input" not in st.session_state:
-    st.session_state.sku_input = ""
-
-# =========================
-# FOOTER
+# ESTILOS (FONDO + UI)
 # =========================
 st.markdown(
     """
     <style>
-    .block-container { padding-bottom: 85px; }
 
+    /* =========================
+       FONDO DEGRADADO GLOBAL
+    ========================= */
+    .stApp {
+        background: linear-gradient(
+            135deg,
+            #ff9a3c 0%,
+            #ffb347 40%,
+            #ffe29a 100%
+        );
+    }
+
+    /* =========================
+       CONTENEDOR PRINCIPAL
+    ========================= */
+    .block-container {
+        padding-bottom: 85px;
+        background-color: rgba(255, 255, 255, 0.88);
+        border-radius: 14px;
+        margin-top: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0px 6px 18px rgba(0,0,0,0.15);
+    }
+
+    /* =========================
+       FOOTER
+    ========================= */
     .footer-lz {
         position: fixed;
         bottom: 10px;
@@ -44,12 +61,22 @@ st.markdown(
         font-weight: 500;
         pointer-events: none;
     }
+
     </style>
 
     <div class="footer-lz">✦ Hecho por LZ ✦</div>
     """,
     unsafe_allow_html=True
 )
+
+# =========================
+# SESSION INIT
+# =========================
+if "autenticado" not in st.session_state:
+    st.session_state.autenticado = False
+
+if "sku_input" not in st.session_state:
+    st.session_state.sku_input = ""
 
 # =========================
 # LOGO
@@ -73,13 +100,13 @@ st.markdown(
 )
 
 # =========================
-# UTIL: NORMALIZAR RUT
+# UTIL NORMALIZAR RUT
 # =========================
 def normalizar_rut(texto):
     if pd.isna(texto):
         return ""
     texto = str(texto).strip().upper()
-    texto = re.sub(r"\s+", "", texto)  # elimina espacios invisibles
+    texto = re.sub(r"\s+", "", texto)
     return texto
 
 # =========================
@@ -119,7 +146,6 @@ def cargar_usuarios():
 
     df.columns = df.columns.str.strip()
 
-    # 🔥 NORMALIZACIÓN TOTAL
     df["Usuario"] = df["Usuario"].apply(normalizar_rut)
     df["Password"] = df["Password"].astype(str).str.strip()
 
@@ -160,7 +186,7 @@ if not st.session_state.autenticado:
     st.stop()
 
 # =========================
-# DATA PRODUCTOS (PARQUET)
+# DATA PRODUCTOS
 # =========================
 ARCHIVO_PARQUET = "data.parquet"
 
