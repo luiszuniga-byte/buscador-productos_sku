@@ -15,6 +15,9 @@ st.set_page_config(page_title="Buscador de Productos", layout="wide")
 if "autenticado" not in st.session_state:
     st.session_state.autenticado = False
 
+if "sku_input" not in st.session_state:
+    st.session_state.sku_input = ""
+
 if "busqueda" not in st.session_state:
     st.session_state.busqueda = ""
 
@@ -144,24 +147,28 @@ colA, colB, colC = st.columns([1, 1, 6])
 with colA:
     if st.button("🚪 Salir"):
         st.session_state.autenticado = False
+        st.session_state.sku_input = ""
         st.session_state.busqueda = ""
         st.rerun()
 
 with colB:
     if st.button("🧹 Limpiar"):
+        st.session_state.sku_input = ""
         st.session_state.busqueda = ""
         st.rerun()
 
 # =========================
-# BUSCADOR (CONTROLADO)
+# BUSCADOR (FIX REAL)
 # =========================
 st.divider()
 
-st.session_state.busqueda = st.text_input(
+st.session_state.sku_input = st.text_input(
     "Ingrese SKU_ENCRIPTADO",
-    value=st.session_state.busqueda,
-    key="sku_input"
+    value=st.session_state.sku_input
 )
+
+# sincronización real
+st.session_state.busqueda = st.session_state.sku_input
 
 # =========================
 # RESULTADOS
@@ -192,7 +199,7 @@ st.caption(f"Usuario conectado: {st.session_state.get('usuario', '')}")
 st.caption(f"Total registros cargados: {len(df)}")
 
 # =========================
-# LOG SOLO ADMIN (OCULTO PARA OTROS)
+# LOG SOLO ADMIN (OCULTO)
 # =========================
 if st.session_state.get("usuario") == "14160711-1":
 
