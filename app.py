@@ -10,7 +10,7 @@ import os
 st.set_page_config(page_title="Buscador de Productos", layout="wide")
 
 # =========================
-# SESSION DEFAULTS
+# SESSION INIT
 # =========================
 if "autenticado" not in st.session_state:
     st.session_state.autenticado = False
@@ -110,7 +110,7 @@ if not st.session_state.autenticado:
     st.stop()
 
 # =========================
-# DATA
+# DATA PRODUCTOS
 # =========================
 RUTA_ARCHIVO = "https://raw.githubusercontent.com/luiszuniga-byte/buscador-productos_sku/main/Template_Stock.csv"
 
@@ -130,7 +130,14 @@ def cargar_datos():
 df = cargar_datos()
 
 # =========================
-# SALIR + LIMPIAR
+# VALIDACIÓN
+# =========================
+if "SKU_ENCRIPTADO" not in df.columns:
+    st.error("❌ No existe la columna SKU_ENCRIPTADO")
+    st.stop()
+
+# =========================
+# BOTONES SUPERIORES
 # =========================
 colA, colB, colC = st.columns([1, 1, 6])
 
@@ -146,15 +153,19 @@ with colB:
         st.rerun()
 
 # =========================
-# BUSCADOR
+# BUSCADOR (CONTROLADO)
 # =========================
 st.divider()
 
 st.session_state.busqueda = st.text_input(
     "Ingrese SKU_ENCRIPTADO",
-    value=st.session_state.busqueda
+    value=st.session_state.busqueda,
+    key="sku_input"
 )
 
+# =========================
+# RESULTADOS
+# =========================
 if st.session_state.busqueda:
 
     resultado = df[df["SKU_ENCRIPTADO"].str.upper() == st.session_state.busqueda.upper()]
@@ -178,6 +189,7 @@ if st.session_state.busqueda:
 # INFO
 # =========================
 st.caption(f"Usuario conectado: {st.session_state.get('usuario', '')}")
+st.caption(f"Total registros cargados: {len(df)}")
 
 # =========================
 # LOG SOLO ADMIN (OCULTO PARA OTROS)
